@@ -23,30 +23,30 @@ final class DoctrineScalarFieldsDefaultPropertiesGuesser extends AbstractDoctrin
 {
     private const DEFAULTS = [
         'ARRAY' => '[],',
-        'ASCII_STRING' => 'self::faker()->text({length}),',
-        'BIGINT' => 'self::faker()->randomNumber(),',
-        'BLOB' => 'self::faker()->text(),',
-        'BOOLEAN' => 'self::faker()->boolean(),',
-        'DATE' => 'self::faker()->dateTime(),',
-        'DATE_MUTABLE' => 'self::faker()->dateTime(),',
-        'DATE_IMMUTABLE' => '\DateTimeImmutable::createFromMutable(self::faker()->dateTime()),',
-        'DATETIME' => 'self::faker()->dateTime(),',
-        'DATETIME_MUTABLE' => 'self::faker()->dateTime(),',
-        'DATETIME_IMMUTABLE' => '\DateTimeImmutable::createFromMutable(self::faker()->dateTime()),',
-        'DATETIMETZ_MUTABLE' => 'self::faker()->dateTime(),',
-        'DATETIMETZ_IMMUTABLE' => '\DateTimeImmutable::createFromMutable(self::faker()->dateTime()),',
-        'DECIMAL' => 'self::faker()->randomFloat(),',
-        'FLOAT' => 'self::faker()->randomFloat(),',
-        'INTEGER' => 'self::faker()->randomNumber(),',
-        'INT' => 'self::faker()->randomNumber(),',
+        'ASCII_STRING' => '{faker}->text({length}),',
+        'BIGINT' => '{faker}->randomNumber(),',
+        'BLOB' => '{faker}->text(),',
+        'BOOLEAN' => '{faker}->boolean(),',
+        'DATE' => '{faker}->dateTime(),',
+        'DATE_MUTABLE' => '{faker}->dateTime(),',
+        'DATE_IMMUTABLE' => '\DateTimeImmutable::createFromMutable({faker}->dateTime()),',
+        'DATETIME' => '{faker}->dateTime(),',
+        'DATETIME_MUTABLE' => '{faker}->dateTime(),',
+        'DATETIME_IMMUTABLE' => '\DateTimeImmutable::createFromMutable({faker}->dateTime()),',
+        'DATETIMETZ_MUTABLE' => '{faker}->dateTime(),',
+        'DATETIMETZ_IMMUTABLE' => '\DateTimeImmutable::createFromMutable({faker}->dateTime()),',
+        'DECIMAL' => '{faker}->randomFloat(),',
+        'FLOAT' => '{faker}->randomFloat(),',
+        'INTEGER' => '{faker}->randomNumber(),',
+        'INT' => '{faker}->randomNumber(),',
         'JSON' => '[],',
         'JSON_ARRAY' => '[],',
         'SIMPLE_ARRAY' => '[],',
-        'SMALLINT' => 'self::faker()->numberBetween(1, 32767),',
-        'STRING' => 'self::faker()->text({length}),',
-        'TEXT' => 'self::faker()->text({length}),',
-        'TIME_MUTABLE' => 'self::faker()->datetime(),',
-        'TIME_IMMUTABLE' => '\DateTimeImmutable::createFromMutable(self::faker()->datetime()),',
+        'SMALLINT' => '{faker}->numberBetween(1, 32767),',
+        'STRING' => '{faker}->text({length}),',
+        'TEXT' => '{faker}->text({length}),',
+        'TIME_MUTABLE' => '{faker}->datetime(),',
+        'TIME_IMMUTABLE' => '\DateTimeImmutable::createFromMutable({faker}->datetime()),',
     ];
 
     public function __invoke(SymfonyStyle $io, MakeFactoryData $makeFactoryData, MakeFactoryQuery $makeFactoryQuery): void
@@ -88,6 +88,12 @@ final class DoctrineScalarFieldsDefaultPropertiesGuesser extends AbstractDoctrin
                 $value = self::DEFAULTS[$type];
             }
 
+            $faker = 'self::faker()';
+            if (true === $this->extractFieldMappingData($property, 'nullable', false)) {
+                $faker = 'self::faker()->optional()';
+            }
+
+            $makeFactoryData->addDefaultProperty($fieldName, \str_replace('{faker}', (string) $faker, $value));
             $makeFactoryData->addDefaultProperty($fieldName, \str_replace('{length}', (string) $length, $value));
         }
     }
